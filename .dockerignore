@@ -1,0 +1,7 @@
+# Ignore node modules and Python cache
+frontend/node_modules
+backend/__pycache__
+**/__pycache__
+*.pyc
+*.pyo
+*.pyd
