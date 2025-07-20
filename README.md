@@ -76,3 +76,8 @@ Run the TypeScript linter from inside `frontend/`:
 cd frontend
 npm run lint
 ```
+
+## Docker Compose
+
+Double-click `Launch.bat` to start both services via Docker Compose.
+
