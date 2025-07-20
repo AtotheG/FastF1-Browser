@@ -9,6 +9,7 @@ interface Props {
 const CacheConfigurator: React.FC<Props> = ({ onConfigured }) => {
   const [path, setPath] = useState('');
   const [success, setSuccess] = useState('');
+  const [errorDetail, setErrorDetail] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
   const mutation = useMutation({
     mutationFn: async () => {
@@ -18,6 +19,16 @@ const CacheConfigurator: React.FC<Props> = ({ onConfigured }) => {
     onSuccess: data => {
       setSuccess(`Success: added ${data.added} records`);
       setTimeout(() => onConfigured(), 1000);
+    },
+    onError: err => {
+      // eslint-disable-next-line no-console
+      console.error('Cache configuration failed', err);
+      if (axios.isAxiosError(err)) {
+        const detail = err.response?.data?.detail;
+        if (typeof detail === 'string') {
+          setErrorDetail(detail);
+        }
+      }
     },
   });
 
@@ -49,7 +60,8 @@ const CacheConfigurator: React.FC<Props> = ({ onConfigured }) => {
           ref={fileInputRef}
           type="file"
           style={{ display: 'none' }}
-          webkitdirectory="true"
+          directory=""
+          webkitdirectory=""
           onChange={handleDirSelected}
         />
         <button type="button" onClick={handleBrowse} className="ml-1">
@@ -61,7 +73,10 @@ const CacheConfigurator: React.FC<Props> = ({ onConfigured }) => {
       </div>
       {success && <div className="text-green-700">{success}</div>}
       {mutation.isError && (
-        <div className="text-red-600">Failed: {(mutation.error as Error).message}</div>
+        <div className="text-red-600">
+          Failed: {(mutation.error as Error).message}
+          {errorDetail && <div>{errorDetail}</div>}
+        </div>
       )}
     </div>
   );
