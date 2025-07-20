@@ -5,14 +5,15 @@ import csv
 import os
 import yaml
 import json
+from pathlib import Path
 
-BASE_DIR = os.path.dirname(__file__)
-SCHEMA_PATH = os.path.join(os.path.dirname(BASE_DIR), "schema.yaml")
+BASE_DIR = Path(__file__).resolve().parent
+SCHEMA_PATH = BASE_DIR.parent / "schema.yaml"
 
 # Cache configuration; set via /config/cache_path
 CACHE_DIR = None
 DB_PATH = None
-INDEX_PATH = None
+INDEX_PATH = BASE_DIR.parent / "session_index.csv"
 
 app = FastAPI(title="FastF1-browser API")
 
@@ -49,10 +50,8 @@ def get_schema():
 
 @app.get("/sessions")
 def list_sessions():
-    if CACHE_DIR is None:
-        raise HTTPException(400, "Cache directory not configured")
     if not os.path.isfile(INDEX_PATH):
-        raise HTTPException(500, "session_index.csv missing in cache directory")
+        raise HTTPException(500, "session_index.csv missing")
     with open(INDEX_PATH, newline="") as csvfile:
         return list(csv.DictReader(csvfile))
 
