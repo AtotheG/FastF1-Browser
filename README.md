@@ -7,6 +7,21 @@ To Interact with F1 data cached using FastF1
 
 Backend data and cache directories are ignored via `.gitignore`.
 
+## Setup
+
+Install dependencies using `pip`:
+
+```bash
+pip install -r requirements.txt
+```
+
+For local testing you can generate a dummy database before starting the
+server:
+
+```bash
+python backend/scripts/prepare_dummy_db.py
+```
+
 ## API Server
 
 Run the FastAPI app locally with:
@@ -14,6 +29,9 @@ Run the FastAPI app locally with:
 ```bash
 uvicorn backend.main:app --reload
 ```
+
+Run `python backend/scripts/prepare_dummy_db.py` beforehand to create a test
+database if you don't already have one.
 
 Available endpoints:
 
