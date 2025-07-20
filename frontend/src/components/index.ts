@@ -3,3 +3,4 @@ export { default as SessionAnalyser } from './SessionAnalyser';
 export { default as LapTimeScatter } from './LapTimeScatter';
 export { default as WeatherLine } from './WeatherLine';
 export { default as PaceVsTimeScatter } from './PaceVsTimeScatter';
+export { default as CacheConfigurator } from './CacheConfigurator';
