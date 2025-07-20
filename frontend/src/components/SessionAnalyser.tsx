@@ -3,7 +3,7 @@ import axios from 'axios';
 import { useQuery } from '@tanstack/react-query';
 
 interface SessionInfo {
-  year: number;
+  year: string;
   event_name: string;
   session_type: string;
   session_id: string;
@@ -19,21 +19,19 @@ export default function SessionAnalyser() {
   });
 
   const [year, setYear] = useState('');
-  const [race, setRace] = useState('');
+  const [eventName, setEventName] = useState('');
   const [sessionId, setSessionId] = useState('');
 
-  const years = Array.from(
-    new Set((sessions ?? []).map(s => String(s.year)))
-  );
-  const races = Array.from(
+  const years = Array.from(new Set((sessions ?? []).map(s => s.year)));
+  const events = Array.from(
     new Set(
       (sessions ?? [])
-        .filter(s => String(s.year) === year)
+        .filter(s => s.year === year)
         .map(s => s.event_name)
     )
   );
   const sessionOpts = (sessions ?? []).filter(
-    s => String(s.year) === year && s.event_name === race
+    s => s.year === year && s.event_name === eventName
   );
 
   return (
@@ -45,17 +43,17 @@ export default function SessionAnalyser() {
         ))}
       </select>
 
-      <select value={race} onChange={e => setRace(e.target.value)} disabled={!year}>
-        <option value="">Race</option>
-        {races.map(r => (
-          <option key={r}>{r}</option>
+      <select value={eventName} onChange={e => setEventName(e.target.value)} disabled={!year}>
+        <option value="">Event</option>
+        {events.map(e => (
+          <option key={e}>{e}</option>
         ))}
       </select>
 
       <select
         value={sessionId}
         onChange={e => setSessionId(e.target.value)}
-        disabled={!race}
+        disabled={!eventName}
       >
         <option value="">Session</option>
         {sessionOpts?.map(s => (

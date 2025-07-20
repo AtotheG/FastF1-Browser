@@ -17,7 +17,6 @@ DB_PATH = None
 INDEX_PATH = BASE_DIR.parent / "session_index.csv"
 
 app = FastAPI(title="FastF1-browser API")
-
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -46,6 +45,7 @@ def set_cache_path(path: str):
     INDEX_PATH = index_path
     return {"cache_dir": CACHE_DIR}
 
+
 @app.get("/schema")
 def get_schema():
     if not os.path.isfile(SCHEMA_PATH):
@@ -53,12 +53,14 @@ def get_schema():
     with open(SCHEMA_PATH, encoding="utf8") as f:
         return yaml.safe_load(f)
 
+
 @app.get("/sessions")
 def list_sessions():
     if not os.path.isfile(INDEX_PATH):
         raise HTTPException(500, "session_index.csv missing")
     with open(INDEX_PATH, newline="") as csvfile:
         return list(csv.DictReader(csvfile))
+
 
 @app.get("/telemetry")
 def get_telemetry(session_id: str):

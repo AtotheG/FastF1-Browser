@@ -4,9 +4,8 @@
 import csv
 import re
 import sys
-import time
 from pathlib import Path
-from typing import Iterable, Dict, Set, Tuple
+from typing import Iterable, Dict, Set, Tuple, Optional
 
 FIELDNAMES = ["session_id", "year", "event_name", "event_date", "session_type", "sid"]
 
@@ -20,6 +19,12 @@ SID2NAME = {
     "Sprint": "S",
     "Race": "R",
 }
+
+NAME2SID = {v: k for k, v in SID2NAME.items()}
+
+FLAT_PATTERN = re.compile(
+    r"(?P<year>\d{4})_(?P<event_date>\d{4}-\d{2}-\d{2})_(?P<event_name>.+)_(?P<sid>FP1|FP2|FP3|SQ|SS|Q|S|R)$"
+)
 
 
 def load_existing_keys(csv_path: Path) -> Set[str]:
@@ -68,25 +73,59 @@ def build_row(year_dir: Path, gp_dir: Path, sess_dir: Path) -> Dict[str, str] | 
     }
 
 
+def build_row_from_file(pkl: Path) -> Optional[Dict[str, str]]:
+    m = FLAT_PATTERN.match(pkl.stem)
+    if not m:
+        return None
+    year = m.group("year")
+    event_key = m.group("event_name")
+    sid = m.group("sid")
+    return {
+        "session_id": pkl.stem,
+        "year": int(year),
+        "event_name": event_key.replace("_", " "),
+        "event_date": m.group("event_date"),
+        "session_type": NAME2SID.get(sid, sid),
+        "sid": sid,
+    }
+
+
 def build_session_index(cache_dir: Path, index_csv: Path) -> int:
-    start = time.perf_counter()
+    """Create or update ``session_index.csv`` for ``cache_dir``.
+
+    Returns the number of newly added rows.
+    """
+
     known = load_existing_keys(index_csv)
+
     dirs = list(cached_session_dirs(cache_dir))
-    if not dirs:
+    flat_files = list(cache_dir.glob("*.ff1pkl"))
+    if not dirs and not flat_files:
         raise FileNotFoundError("No ff1pkl files found in cache directory")
+
     new_rows = []
     for y, gp, sdir in dirs:
         row = build_row(y, gp, sdir)
         if row and row["session_id"] not in known:
             new_rows.append(row)
             known.add(row["session_id"])
+
+    for pkl in flat_files:
+        row = build_row_from_file(pkl)
+        if row and row["session_id"] not in known:
+            new_rows.append(row)
+            known.add(row["session_id"])
+
     if new_rows:
         mode = "a" if index_csv.is_file() else "w"
         with index_csv.open(mode, newline="") as f:
             writer = csv.DictWriter(f, fieldnames=FIELDNAMES)
             if mode == "w":
                 writer.writeheader()
-            writer.writerows(sorted(new_rows, key=lambda r: (r["year"], r["event_date"], r["sid"])))
+            writer.writerows(
+                sorted(new_rows, key=lambda r: (r["year"], r["event_date"], r["sid"]))
+            )
+
     return len(new_rows)
 
 
