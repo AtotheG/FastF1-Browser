@@ -43,3 +43,16 @@ Available endpoints:
 Call `/config/cache_path` before using `/telemetry` so the server knows where to
 find `fastf1.duckdb`. `/sessions` reads from the built-in `session_index.csv` by
 default.
+
+## Frontend
+
+The React application lives in `frontend/` and uses Vite.
+Install dependencies and start the dev server:
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+Run `npm run lint` to check TypeScript code.
