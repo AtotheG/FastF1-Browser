@@ -3,10 +3,10 @@ import axios from 'axios';
 import { useQuery } from '@tanstack/react-query';
 
 interface SessionInfo {
-  Season: string;
-  Round: string;
-  Session: string;
-  SessionID: string;
+  year: number;
+  event_name: string;
+  session_type: string;
+  session_id: string;
 }
 
 export default function SessionAnalyser() {
@@ -22,9 +22,19 @@ export default function SessionAnalyser() {
   const [race, setRace] = useState('');
   const [sessionId, setSessionId] = useState('');
 
-  const years = Array.from(new Set(sessions?.map(s => s.Season)));
-  const races = sessions?.filter(s => s.Season === year);
-  const sessionOpts = races?.filter(r => r.Round === race);
+  const years = Array.from(
+    new Set((sessions ?? []).map(s => String(s.year)))
+  );
+  const races = Array.from(
+    new Set(
+      (sessions ?? [])
+        .filter(s => String(s.year) === year)
+        .map(s => s.event_name)
+    )
+  );
+  const sessionOpts = (sessions ?? []).filter(
+    s => String(s.year) === year && s.event_name === race
+  );
 
   return (
     <div>
@@ -37,8 +47,8 @@ export default function SessionAnalyser() {
 
       <select value={race} onChange={e => setRace(e.target.value)} disabled={!year}>
         <option value="">Race</option>
-        {races?.map(r => (
-          <option key={r.Round}>{r.Round}</option>
+        {races.map(r => (
+          <option key={r}>{r}</option>
         ))}
       </select>
 
@@ -49,8 +59,8 @@ export default function SessionAnalyser() {
       >
         <option value="">Session</option>
         {sessionOpts?.map(s => (
-          <option key={s.SessionID} value={s.SessionID}>
-            {s.Session}
+          <option key={s.session_id} value={s.session_id}>
+            {s.session_type}
           </option>
         ))}
       </select>

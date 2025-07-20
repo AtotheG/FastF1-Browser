@@ -4,8 +4,9 @@ import duckdb
 import csv
 import os
 import yaml
-import json
 from pathlib import Path
+
+from .scripts.build_session_index import build_session_index
 
 BASE_DIR = Path(__file__).resolve().parent
 SCHEMA_PATH = BASE_DIR.parent / "schema.yaml"
@@ -32,9 +33,13 @@ def set_cache_path(path: str):
     if not os.path.isdir(path):
         raise HTTPException(400, "Invalid cache directory")
     db_path = os.path.join(path, "fastf1.duckdb")
+    if not os.path.isfile(db_path):
+        raise HTTPException(400, "Cache directory missing fastf1.duckdb")
     index_path = os.path.join(path, "session_index.csv")
-    if not os.path.isfile(db_path) or not os.path.isfile(index_path):
-        raise HTTPException(400, "Cache directory missing required files")
+    try:
+        build_session_index(Path(path), Path(index_path))
+    except FileNotFoundError:
+        raise HTTPException(400, "No ff1pkl files found in cache directory")
     global CACHE_DIR, DB_PATH, INDEX_PATH
     CACHE_DIR = path
     DB_PATH = db_path
