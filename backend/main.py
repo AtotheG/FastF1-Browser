@@ -45,7 +45,7 @@ _SID_LONG = {
 }
 
 
-def _fallback_write_session_index(index_path: Path, cache_dir: Path) -> None:
+def _fallback_write_session_index(index_path: Path, cache_dir: Path) -> int:
     pkl_files = list(cache_dir.rglob("*.ff1pkl"))
     rows = []
     for p in pkl_files:
@@ -88,6 +88,8 @@ def _fallback_write_session_index(index_path: Path, cache_dir: Path) -> None:
         writer.writeheader()
         writer.writerows(rows)
 
+    return len(rows)
+
 
 # ---------------------------------------------------------------------------
 # CORS
@@ -124,29 +126,26 @@ def set_cache_path(path: str):
 
     index_path = cache_dir / "session_index.csv"
 
-    if not index_path.is_file():
-        # Try full-featured builder first
-        built = False
-        if build_session_index is not None:
-            try:
-                build_session_index(cache_dir, index_path)
-                built = True
-            except FileNotFoundError:
-                # Fall through to fallback
-                pass
-            except Exception as e:
-                # Unexpected error: continue to fallback
-                print(f"[WARN] build_session_index failed: {e!r}")
+    added = 0
+    if build_session_index is not None:
+        try:
+            added = build_session_index(cache_dir, index_path)
+        except FileNotFoundError:
+            # Fall through to fallback
+            pass
+        except Exception as e:
+            # Unexpected error: continue to fallback
+            print(f"[WARN] build_session_index failed: {e!r}")
 
-        if not built:
-            # Fallback regex approach
-            try:
-                _fallback_write_session_index(index_path, cache_dir)
-            except FileNotFoundError as e:
-                raise HTTPException(
-                    status_code=400,
-                    detail=f"Cannot build session_index.csv: {e}",
-                )
+    if not index_path.is_file():
+        # Fallback regex approach
+        try:
+            added = _fallback_write_session_index(index_path, cache_dir)
+        except FileNotFoundError as e:
+            raise HTTPException(
+                status_code=400,
+                detail=f"Cannot build session_index.csv: {e}",
+            )
 
     # Final sanity checks
     if not index_path.is_file():
@@ -159,7 +158,12 @@ def set_cache_path(path: str):
     DB_PATH = db_path
     INDEX_PATH = index_path
 
-    return {"cache_dir": str(CACHE_DIR), "db": str(DB_PATH), "index": str(INDEX_PATH)}
+    return {
+        "cache_dir": str(CACHE_DIR),
+        "db": str(DB_PATH),
+        "index": str(INDEX_PATH),
+        "added": added,
+    }
 
 
 # ---------------------------------------------------------------------------

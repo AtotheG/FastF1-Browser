@@ -18,6 +18,7 @@ def test_cache_path_creates_index(tmp_path):
     client = TestClient(app)
     response = client.post("/config/cache_path", params={"path": str(cache_dir)})
     assert response.status_code == 200
+    assert response.json()["added"] == 1
 
     index_file = cache_dir / "session_index.csv"
     assert index_file.is_file()
