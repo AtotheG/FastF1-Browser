@@ -1,0 +1,65 @@
+laps:
+  Time: timedelta64[ns]
+  Driver: object
+  DriverNumber: object
+  LapTime: timedelta64[ns]
+  LapNumber: float64
+  Stint: float64
+  PitOutTime: timedelta64[ns]
+  PitInTime: timedelta64[ns]
+  Sector1Time: timedelta64[ns]
+  Sector2Time: timedelta64[ns]
+  Sector3Time: timedelta64[ns]
+  Sector1SessionTime: timedelta64[ns]
+  Sector2SessionTime: timedelta64[ns]
+  Sector3SessionTime: timedelta64[ns]
+  SpeedI1: float64
+  SpeedI2: float64
+  SpeedFL: float64
+  SpeedST: float64
+  IsPersonalBest: bool
+  Compound: object
+  TyreLife: float64
+  FreshTyre: bool
+  Team: object
+  LapStartTime: timedelta64[ns]
+  LapStartDate: datetime64[ns]
+  TrackStatus: object
+  Position: float64
+  Deleted: bool
+  DeletedReason: object
+  FastF1Generated: bool
+  IsAccurate: bool
+weather_data:
+  Time: timedelta64[ns]
+  AirTemp: float64
+  Humidity: float64
+  Pressure: float64
+  Rainfall: bool
+  TrackTemp: float64
+  WindDirection: int64
+  WindSpeed: float64
+session_info:
+  Meeting: object
+  ArchiveStatus: object
+  Key: int64
+  Type: object
+  Name: object
+  StartDate: datetime64[ns]
+  EndDate: datetime64[ns]
+  GmtOffset: timedelta64[ns]
+  Path: object
+race_control_messages:
+  Time: datetime64[ns]
+  Category: object
+  Message: object
+  Status: object
+  Flag: object
+  Scope: object
+  Sector: float64
+  RacingNumber: object
+  Lap: int64
+track_status:
+  Time: timedelta64[ns]
+  Status: object
+  Message: object
