@@ -7,9 +7,12 @@ import yaml
 import json
 
 BASE_DIR = os.path.dirname(__file__)
-DB_PATH = os.path.join(BASE_DIR, "data", "fastf1.duckdb")
 SCHEMA_PATH = os.path.join(os.path.dirname(BASE_DIR), "schema.yaml")
-INDEX_PATH = os.path.join(BASE_DIR, "data", "session_index.csv")
+
+# Cache configuration; set via /config/cache_path
+CACHE_DIR = None
+DB_PATH = None
+INDEX_PATH = None
 
 app = FastAPI(title="FastF1-browser API")
 
@@ -21,6 +24,22 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
+@app.post("/config/cache_path")
+def set_cache_path(path: str):
+    """Configure directory that stores cached FastF1 data."""
+    if not os.path.isdir(path):
+        raise HTTPException(400, "Invalid cache directory")
+    db_path = os.path.join(path, "fastf1.duckdb")
+    index_path = os.path.join(path, "session_index.csv")
+    if not os.path.isfile(db_path) or not os.path.isfile(index_path):
+        raise HTTPException(400, "Cache directory missing required files")
+    global CACHE_DIR, DB_PATH, INDEX_PATH
+    CACHE_DIR = path
+    DB_PATH = db_path
+    INDEX_PATH = index_path
+    return {"cache_dir": CACHE_DIR}
+
 @app.get("/schema")
 def get_schema():
     if not os.path.isfile(SCHEMA_PATH):
@@ -30,15 +49,19 @@ def get_schema():
 
 @app.get("/sessions")
 def list_sessions():
+    if CACHE_DIR is None:
+        raise HTTPException(400, "Cache directory not configured")
     if not os.path.isfile(INDEX_PATH):
-        return []
+        raise HTTPException(500, "session_index.csv missing in cache directory")
     with open(INDEX_PATH, newline="") as csvfile:
         return list(csv.DictReader(csvfile))
 
 @app.get("/telemetry")
 def get_telemetry(session_id: str):
+    if CACHE_DIR is None:
+        raise HTTPException(400, "Cache directory not configured")
     if not os.path.isfile(DB_PATH):
-        raise HTTPException(500, "DuckDB file missing – run cache script.")
+        raise HTTPException(500, "DuckDB file missing in cache directory")
     q = "SELECT distance, speed FROM telemetry WHERE session_id = ?"
     with duckdb.connect(DB_PATH, read_only=True) as conn:
         rows = conn.execute(q, [session_id]).fetchall()
