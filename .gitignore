@@ -1,0 +1,14 @@
+# Python cache / venv
+backend/__pycache__/
+backend/*.py[cod]
+backend/venv/
+# FastF1 local cache & DuckDB
+backend/cache/
+backend/data/*.duckdb
+# Node modules
+frontend/node_modules/
+# Env files
+*.env
+
+# Dummy database file
+backend/data/dummy.duckdb
