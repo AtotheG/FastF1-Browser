@@ -17,6 +17,10 @@ uvicorn backend.main:app --reload
 
 Available endpoints:
 
+- `/config/cache_path` – POST a directory path to configure the cache.
 - `/schema` – returns the YAML schema.
 - `/sessions` – lists sessions from the cached CSV.
 - `/telemetry` – returns telemetry data for a session.
+
+Call `/config/cache_path` before other endpoints so the server knows where to
+find `fastf1.duckdb` and `session_index.csv`.
