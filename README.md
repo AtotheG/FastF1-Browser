@@ -61,3 +61,18 @@ npm run dev
 ```
 
 Run `npm run lint` to check TypeScript code.
+
+## Testing
+
+Run the backend test suite from the repository root:
+
+```bash
+pytest
+```
+
+Run the TypeScript linter from inside `frontend/`:
+
+```bash
+cd frontend
+npm run lint
+```
