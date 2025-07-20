@@ -10,6 +10,7 @@ def create_dummy_db(db_path: Path = Path(__file__).resolve().parent.parent / "da
     con.close()
 
 if __name__ == "__main__":
+    db_path = create_dummy_db.__defaults__[0]
     create_dummy_db()
-    print(f"Created dummy DB at {create_dummy_db.__defaults__[0]}")
+    print(f"Created dummy DB at {db_path}")
 
