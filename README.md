@@ -38,7 +38,10 @@ Available endpoints:
 
 - `/config/cache_path` – POST a directory path to configure the cache. This call
   runs `backend/scripts/build_session_index.py` which generates
-  `session_index.csv` from any `.ff1pkl` files in the directory.
+  `session_index.csv` from any `.ff1pkl` files in the directory. When running
+  the server in Docker, mount your FastF1 cache into the container (see the
+  Docker Compose section) and pass the in-container path such as `/cache` to this
+  endpoint.
 - `/schema` – returns the YAML schema.
 - `/sessions` – lists sessions from `session_index.csv`.
 - `/telemetry` – returns telemetry data for a session.
@@ -80,4 +83,17 @@ npm run lint
 ## Docker Compose
 
 Double-click `Launch.bat` to start both services via Docker Compose.
+
+Your FastF1 cache directory must be mounted into the backend container so the
+application can index your data. Add a volume mapping similar to the following
+in `docker-compose.yml`:
+
+```yaml
+services:
+  backend:
+    volumes:
+      - /path/to/local/FastF1Cache:/cache
+```
+
+When using this setup, pass `/cache` to `/config/cache_path`.
 
