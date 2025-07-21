@@ -63,6 +63,10 @@ npm install
 npm run dev
 ```
 
+Copy the path to your FastF1 cache directory from Windows Explorer (spaces and
+all) and paste it into the UI's **Cache directory path** field. The "Browse…"
+button has been removed, so the path must be entered manually.
+
 Run `npm run lint` to check TypeScript code.
 
 ## Testing
