@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useState } from 'react';
 import axios from 'axios';
 import { useMutation } from '@tanstack/react-query';
 
@@ -10,7 +10,6 @@ const CacheConfigurator: React.FC<Props> = ({ onConfigured }) => {
   const [path, setPath] = useState('');
   const [success, setSuccess] = useState('');
   const [errorDetail, setErrorDetail] = useState('');
-  const fileInputRef = useRef<HTMLInputElement>(null);
   const mutation = useMutation({
     mutationFn: async () => {
       const { data } = await axios.post('/config/cache_path', null, { params: { path } });
@@ -32,20 +31,6 @@ const CacheConfigurator: React.FC<Props> = ({ onConfigured }) => {
     },
   });
 
-  function handleBrowse() {
-    fileInputRef.current?.click();
-  }
-
-  function handleDirSelected(e: React.ChangeEvent<HTMLInputElement>) {
-    const files = e.target.files;
-    if (files && files.length) {
-      const f = files[0] as File & { path?: string; webkitRelativePath?: string };
-      if (f.path) {
-        const rel = f.webkitRelativePath || '';
-        setPath(f.path.slice(0, f.path.length - rel.length));
-      }
-    }
-  }
 
   return (
     <div className="space-y-2">
@@ -56,17 +41,6 @@ const CacheConfigurator: React.FC<Props> = ({ onConfigured }) => {
           onChange={e => setPath(e.target.value)}
           placeholder="Cache directory path"
         />
-        <input
-          ref={fileInputRef}
-          type="file"
-          style={{ display: 'none' }}
-          directory=""
-          webkitdirectory=""
-          onChange={handleDirSelected}
-        />
-        <button type="button" onClick={handleBrowse} className="ml-1">
-          Browse…
-        </button>
         <button onClick={() => mutation.mutate()} disabled={!path || mutation.isLoading} className="ml-1">
           Go
         </button>
